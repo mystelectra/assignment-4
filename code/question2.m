@@ -3,7 +3,7 @@ clear all
 
 L=200e-9;
 W=100e-9;
-n=100; %change
+n=10000; %change
 nsteps =100; %change
 
 tau_mn=0.2e-12 %seconds
@@ -13,7 +13,7 @@ mn=0.26*m0;
 T=300; %Kelvin
 k=physconst('Boltzman');
 
-vth = sqrt(2*k*T/mn);
+vth = sqrt(k*T/mn);
 
 %inititalize particle locations
 x=rand(1,n)*L;
@@ -25,8 +25,8 @@ xp = x;
 yp = y;
 
 %initialize random velocities
-vx=sqrt(k*T/mn)*randn(1,n);
-vy=sqrt(k*T/mn)*randn(1,n);
+vx=vth*randn(1,n)/sqrt(2);
+vy=vth*randn(1,n)/sqrt(2);
 speed=sqrt(vx.*vx +vy.*vy);
 
 f1 = figure;
@@ -68,8 +68,8 @@ for aa=1:nsteps
     
     for bb=1:n
         if (pscat > rand())
-            vx(bb)=sqrt(k*T/mn)*randn();
-            vy(bb)=sqrt(k*T/mn)*randn();
+            vx(bb)=vth*randn()/sqrt(2);
+            vy(bb)=vth*randn()/sqrt(2);
             scatCount = scatCount+1;
         end
     end
@@ -124,9 +124,9 @@ for aa=1:nsteps
     pause(0.01);
     
     
-    velx = mean(abs(vx));
-    vely = mean(abs(vy));
-    v_inst=sqrt(velx*velx+vely*vely);
+    velx = mean(vx.^2);
+    vely = mean(vy.^2);
+    v_inst=sqrt(velx+vely);
     
     Temp= v_inst*v_inst*mn/k ;
    set(0, 'CurrentFigure', f3)

@@ -14,7 +14,7 @@ mn=0.26*m0;
 T=300; %Kelvin
 k=physconst('Boltzman');
 
-vth = sqrt(2*k*T/mn)
+vth = sqrt(k*T/mn);
 
 tau=0.2e-9; %seconds
 

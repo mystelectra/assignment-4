@@ -15,7 +15,7 @@ T=300; %Kelvin
 k=physconst('Boltzman');
 d=1e-18;
 
-vth = sqrt(2*k*T/mn)
+vth = sqrt(k*T/mn);
 mfpath = L*W/(sqrt(2)*n*pi*d*d)
 
 %inititalize particle locations
@@ -141,5 +141,6 @@ for i=1:nsteps
 
       
 end
+
 
 
