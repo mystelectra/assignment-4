@@ -9,13 +9,14 @@ num = n;
 
 ang=randn(1,n)*2*pi;
 
-m0=9.109e-31;
+m0=9.109382e-31; %electron mass
 mn=0.26*m0;
-T=300;
+T=300; %Kelvin
 k=physconst('Boltzman');
-tau=0.2e-9; %sec
- 
+
 vth = sqrt(2*k*T/mn)
+
+tau=0.2e-9; %seconds
 
 x=rand(1,n)*L;
 y=rand(1,n)*W;
