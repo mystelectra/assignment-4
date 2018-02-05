@@ -141,3 +141,4 @@ end
 AverageTemperature = mean(av_temp)
 meanfreepath = mean(path)
 meanfreetime = meanfreepath/(mean(v_inst))
+ 
