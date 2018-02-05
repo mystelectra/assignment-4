@@ -35,7 +35,7 @@
  % In this section of the simulation, scattering is added to the electron movement (i.e.collisions with the
  % background). A calculation of the mean free path based on scattering, rather than a rough calculation based on given parameters.
  % In this simulation, the scattering is based on the formula:
- %
+ % 
  % $$ P_{scat} = 1-e^{(-dt/\tau_{mn})} $$
  %
  % This is then compared to a random number generator in MATLab, to
