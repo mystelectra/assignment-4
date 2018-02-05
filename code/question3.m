@@ -5,7 +5,7 @@ clear all
 L=200e-9;
 W=100e-9;
 n=10000; %change
-nsteps =100; %change
+nsteps =1000; %change
 
 ang=randn(1,n)*2*pi;
 
