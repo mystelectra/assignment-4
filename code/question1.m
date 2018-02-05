@@ -1,5 +1,3 @@
-%%This is my report
-
 close all
 clear all
 
