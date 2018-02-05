@@ -1,3 +1,5 @@
+%%This is my report
+
 close all
 clear all
 
@@ -13,10 +15,12 @@ m0=9.109382e-31; %electron mass
 mn=0.26*m0;
 T=300; %Kelvin
 k=physconst('Boltzman');
+%% 
 
-vth = sqrt(k*T/mn);
+vth = sqrt(k*T/mn)
 
 tau=0.2e-9; %seconds
+mfp = tau*vth % meters
 
 x=rand(1,n)*L;
 y=rand(1,n)*W;
@@ -50,8 +54,6 @@ for i=1:nsteps
 
     x=x+dx;
     y=y+dy;
-
-    xpath=abs(x-xp); %xpath calc before bounday adjustment
   
     %periodic boundaries for walls
      for a=1:n
@@ -70,8 +72,6 @@ for i=1:nsteps
         end
      end
 
-    ypath=abs(y-yp); %ypath calc after boundary adjustment
-    path = sqrt(xpath.*xpath + ypath.*ypath);
     
     velx = mean(abs(vx));
     vely = mean(abs(vy));
@@ -105,8 +105,3 @@ for i=1:nsteps
     pause(0.01);
     
 end
-
- 
-meanfreepath = mean(path);%??
-
-
