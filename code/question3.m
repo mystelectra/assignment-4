@@ -1,11 +1,11 @@
+
 close all
+clear all
 
 L=200e-9;
 W=100e-9;
-n=100; %change
-nsteps =1000; %change
-pscat=0.05;
-scatCount= 0;
+n=10000; %change
+nsteps =100; %change
 
 ang=randn(1,n)*2*pi;
 
@@ -14,9 +14,10 @@ mn=0.26*m0;
 T=300; %Kelvin
 k=physconst('Boltzman');
 d=1e-18;
+tau_mn=0.2e-12; %seconds
+
 
 vth = sqrt(k*T/mn);
-mfpath = L*W/(sqrt(2)*n*pi*d*d)
 
 %inititalize particle locations
 x=rand(1,n)*L;
@@ -31,16 +32,17 @@ Cylow =40e-9;
 Cyhigh=60e-9;
 Ibox = (y>Cyhigh | y<Cylow) & x<Cxhigh & x>Cxlow;
 
+countrestarts =0;
 % no starting in boxes
 for a = 1:n
 while (x(a)<Cxhigh && x(a)>Cxlow && (y(a)>Cyhigh || y(a)<Cylow))
     x(a) = rand()*L;
     y(a) = rand()*W;
+    countrestarts = countrestarts+1;
 end
 end
 
  
-
 %initialize previous location as first location just to get the plot
 %started
 xp = x;
@@ -52,11 +54,13 @@ vy=vth*rand(1,n);
 dt=(L/vth)/100;
 
 col=hsv(10); %vector of colours for particle trajectories
+figure(7)
   for p = 1:10
         plot([x(p); xp(p)],[y(p); yp(p)],'color',col(p,:));  hold on
-    end
+  end
     xlim([0 L])
     ylim([0 W])
+
 %display boxes
 line([Cxlow,Cxlow,Cxhigh,Cxhigh], [0,Cylow,Cylow,0], 'color', 'k');
 line([Cxlow,Cxlow,Cxhigh,Cxhigh], [W,Cyhigh,Cyhigh,W], 'color', 'k');
@@ -80,16 +84,16 @@ for i=1:nsteps
     %travelling restrictions (WALL)
      for a=1:n
        %no travelling through boxes
-        if ( xp(a)<Cxlow && x(a)>=Cxlow &&(y(a)>Cyhigh ||y(a)<Cylow))
-            x(a)=Cxlow    
+        if ( xp(a)<=Cxlow && x(a)>=Cxlow &&(y(a)>=Cyhigh ||y(a)<=Cylow))
+            x(a)=Cxlow ;   
             vx(a)=-vx(a);
-        elseif (xp(a)>Cxhigh && x(a)<=Cxhigh&&(y(a)>Cyhigh ||y(a)<Cylow))
-            x(a)=Cxhigh           
+        elseif (xp(a)>=Cxhigh && x(a)<=Cxhigh&&(y(a)>=Cyhigh ||y(a)<=Cylow))
+            x(a)=Cxhigh;           
             vx(a)=-vx(a);
-        elseif (yp(a)<Cyhigh && y(a)>=Cyhigh&&(x(a)>Cxlow && x(a)<Cxhigh))
+        elseif (yp(a)<=Cyhigh && y(a)>=Cyhigh&&(x(a)>=Cxlow && x(a)<=Cxhigh))
             y(a) = Cyhigh;    
             vy(a) = -vy(a);
-        elseif (yp(a)>Cylow && y(a)<=Cylow&&(x(a)>Cxlow && x(a)<Cxhigh))
+        elseif (yp(a)>=Cylow && y(a)<=Cylow&&(x(a)>=Cxlow && x(a)<=Cxhigh))
               y(a) = Cylow;   
             vy(a) = -vy(a);
         end
@@ -112,14 +116,15 @@ for i=1:nsteps
      end %end travelling restrictions loop
      
     %scattering
-    if (pscat > rand())
-        q=round(rand())*n;
-        if (q==0)
-            q=1;
+    pscat=1-exp(-dt/tau_mn);
+    scatCount= 0;
+    
+    for bb=1:n
+        if (pscat > rand())
+            vx(bb)=vth*randn()/sqrt(2);
+            vy(bb)=vth*randn()/sqrt(2);
+            scatCount = scatCount+1;
         end
-        vx(q)=vth*rand();
-        vy(q)=vth*rand();
-        scatCount = scatCount+1;
     end
 
      %ypath calc after boundary adjustment
@@ -129,7 +134,7 @@ for i=1:nsteps
     path = sqrt(xpath.*xpath + ypath.*ypath);    
     
 %     plot(x,y,'o');hold on
-  figure (1)
+  figure (7)
     %plot trajectories 
     for p = 1:10
         plot([x(p); xp(p)],[y(p); yp(p)],'color',col(p,:));  hold on
@@ -141,6 +146,72 @@ for i=1:nsteps
 
       
 end
+
+delta = 5e-9;
+counta=0;
+countelectrons=0;
+Nmap = zeros(L/delta,W/delta);
+Vmap = zeros(L/delta,W/delta);
+Tmap = zeros(L/delta,W/delta);
+
+%populate density maps
+for  aa = delta:delta:L
+    counta=counta+1;
+    countb=0;
+    for bb=delta:delta:W
+        countb=countb+1;
+        for cc=1:n
+            %Populate Electron Density Map
+            if (x(cc)<(counta*delta) & x(cc)>=((counta-1)*delta) & y(cc)<(countb*delta) & y(cc)>=((countb-1)*delta))
+              Nmap(counta,countb) = Nmap(counta,countb)+1;
+              Vmap(counta,countb) = Vmap(counta,countb)+sqrt(vx(cc)*vx(cc)+vy(cc)*vy(cc));
+              map(counta,countb)=Vmap(counta,countb)/Nmap(counta,countb);
+              Tmap(counta,countb) = map(counta,countb)*map(counta,countb)*mn/k;
+              countelectrons = countelectrons +1;
+            elseif(x(cc)== L)
+                Nmap(counta,countb) = Nmap(counta,countb)+1;
+                Vmap(counta,countb) = Vmap(counta,countb)+sqrt(vx(cc)*vx(cc)+vy(cc)*vy(cc));
+                map(counta,countb)=Vmap(counta,countb)/Nmap(counta,countb);
+               Tmap(counta,countb) = map(counta,countb)*map(counta,countb)*mn/k;
+                countelectrons = countelectrons +1;  
+             elseif(y(cc)==W)
+                Nmap(counta,countb) = Nmap(counta,countb)+1;
+                Vmap(counta,countb) = Vmap(counta,countb)+sqrt(vx(cc)*vx(cc)+vy(cc)*vy(cc));
+                map(counta,countb)=Vmap(counta,countb)/Nmap(counta,countb);
+               Tmap(counta,countb) = map(counta,countb)*map(counta,countb)*mn/k;
+                countelectrons = countelectrons +1; 
+            elseif(x(cc)== L & y(cc)==W)
+                Nmap(counta,countb) = Nmap(counta,countb)+1;
+                Vmap(counta,countb) = Vmap(counta,countb)+sqrt(vx(cc)*vx(cc)+vy(cc)*vy(cc));
+                map(counta,countb)=Vmap(counta,countb)/Nmap(counta,countb);
+               Tmap(counta,countb) = map(counta,countb)*map(counta,countb)*mn/k;
+                countelectrons = countelectrons +1;
+            end            
+        end
+    end
+end
+
+for  dd = 1:L/delta
+    for ee=1:W/delta
+        if Tmap(dd,ee)== 0
+            Tmap(dd,ee) = 300;
+        end            
+    end
+end
+
+ figure(8)
+surf(Nmap)
+colormap('parula')
+colorbar
+shading interp;
+
+figure (9)
+surf(Tmap)
+h=flipud(hsv);
+colormap(h)
+caxis([200 800])
+colorbar
+shading interp;
 
 
 
