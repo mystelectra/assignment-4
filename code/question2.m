@@ -14,6 +14,7 @@ T=300; %Kelvin
 k=physconst('Boltzman');
 
 vth = sqrt(k*T/mn);
+mfp = tau_mn*vth % meters
 
 %inititalize particle locations
 x=rand(1,n)*L;
@@ -44,19 +45,18 @@ subplot(2,2,[3,4]);
 histogram (speed);
 title ('Distribution-speed'); 
 
-%double check this!!!!!!!!
 dt=(L/vth)/100;
 av_temp = zeros(1,nsteps);
 
-col=hsv(10); %vector of colours for particle trajectories
+%vector of colours for particle trajectories
+col=hsv(10); 
 set(0, 'CurrentFigure', f2)
   for p = 1:10
         plot([x(p); xp(p)],[y(p); yp(p)],'color',col(p,:));  hold on
     end
     xlim([0 L])
     ylim([0 W])
-
-    time=0;
+    
 %main timeloop
 for aa=1:nsteps
     xp=x;
@@ -107,7 +107,7 @@ for aa=1:nsteps
      %ypath calc after boundary adjustment
     ypath=abs(y-yp); 
     
-    %calculate path - not sure if this is right
+    %calculate path 
     path = sqrt(xpath.*xpath + ypath.*ypath);    
     
     
@@ -139,5 +139,5 @@ end
 
 
 AverageTemperature = mean(av_temp)
-meanfreepath = mean(path); %not sure if this is right
-
+meanfreepath = mean(path)
+meanfreetime = meanfreepath/(mean(v_inst))
