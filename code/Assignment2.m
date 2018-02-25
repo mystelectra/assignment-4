@@ -164,3 +164,4 @@ xlabel(sprintf('Width = %d', ny))
 zlabel('Potential')
 title(sprintf('Electrostatic Potential: V= %d  at X=0, V=%d at X=%d',BC_left, BC_right,nx))
 
+ 
